@@ -1,21 +1,52 @@
-import { Neuvol, images } from "./index";
 import Bird from "./Brid";
-import { SpritesEnum } from "./sprites";
 import Pipe from "./Pipe";
+import { FPS } from "./speed";
+import { options } from "./Options";
+import Neuroevolution from "./Neuroevolution";
+import { Images } from "./images";
+
+(function () {
+  let timeouts = [];
+  const messageName = "zero-timeout-message";
+
+  function setZeroTimeout(fn) {
+    timeouts.push(fn);
+    window.postMessage(messageName, "*");
+  }
+
+  function handleMessage(event) {
+    if (event.source == window && event.data == messageName) {
+      event.stopPropagation();
+      if (timeouts.length > 0) {
+        const fn = timeouts.shift();
+        fn();
+      }
+    }
+  }
+
+  window.addEventListener("message", handleMessage, true);
+
+  window.setZeroTimeout = setZeroTimeout;
+})();
 
 export interface Gen {
   compute: (inputs: number[]) => number;
+  getSave: () => number;
 }
+
+export let images: Images = {};
+
+let Neuvol: Neuroevolution;
 
 class Game {
   protected pipes: Pipe[] = [];
   protected birds: Array<Bird> = [];
   protected score: number = 0;
 
-  protected canvas: HTMLCanvasElement = document.querySelector("#flappy");
-  protected ctx: CanvasRenderingContext2D = this.canvas.getContext("2d");
-  protected width: number = this.canvas.width;
-  protected height: number = this.canvas.height;
+  protected canvas: HTMLCanvasElement;
+  protected ctx: CanvasRenderingContext2D;
+  protected width: number;
+  protected height: number;
 
   protected spawnInterval: number = 90;
   protected interval: number = 0;
@@ -26,13 +57,21 @@ class Game {
   protected backgroundx: number = 0;
   protected maxScore: number = 0;
 
+  constructor() {
+    this.canvas = document.querySelector("#flappy");
+    this.ctx = this.canvas.getContext("2d");
+    this.width = this.canvas.width;
+    this.height = this.canvas.height;
+  }
+
   public start = () => {
     this.interval = 0;
     this.score = 0;
     this.pipes = [];
     this.birds = [];
 
-    // this.gen = Neuvol.nextGeneration();
+    this.gen = Neuvol.nextGeneration();
+
     for (let i in this.gen) {
       let b = new Bird();
       this.birds.push(b);
@@ -40,6 +79,7 @@ class Game {
     this.generation++;
     this.alives = this.birds.length;
   };
+
   public update = () => {
     this.backgroundx += this.backgroundSpeed;
     let nextHoll = 0;
@@ -105,18 +145,39 @@ class Game {
 
     this.score++;
     this.maxScore = this.score > this.maxScore ? this.score : this.maxScore;
+
+    let self = this;
+    if (FPS == 0) {
+      setZeroTimeout(function () {
+        self.update();
+      });
+    } else {
+      setTimeout(function () {
+        self.update();
+      }, 1000 / FPS);
+    }
   };
+
+  public isItEnd = () => {
+    for (let i in this.birds) {
+      if (this.birds[i].alive) {
+        return false;
+      }
+    }
+    return true;
+  };
+
   public display = () => {
     this.ctx.clearRect(0, 0, this.width, this.height);
     for (
       let i = 0;
-      i < Math.ceil(this.width / images[SpritesEnum.background].width) + 1;
+      i < Math.ceil(this.width / images["background"].width) + 1;
       i++
     ) {
       this.ctx.drawImage(
-        images[SpritesEnum.background],
-        i * images[SpritesEnum.background].width -
-          Math.floor(this.backgroundx % images[SpritesEnum.background].width),
+        images["background"],
+        i * images["background"].width -
+          Math.floor(this.backgroundx % images["background"].width),
         0
       );
     }
@@ -124,21 +185,19 @@ class Game {
     for (let i in this.pipes) {
       if (Number(i) % 2 == 0) {
         this.ctx.drawImage(
-          images[SpritesEnum.pipetop],
+          images["pipetop"],
           this.pipes[i].x,
-          this.pipes[i].y +
-            this.pipes[i].height -
-            images[SpritesEnum.pipetop].height,
+          this.pipes[i].y + this.pipes[i].height - images["pipetop"].height,
           this.pipes[i].width,
-          images[SpritesEnum.pipetop].height
+          images["pipetop"].height
         );
       } else {
         this.ctx.drawImage(
-          images[SpritesEnum.pipebottom],
+          images["pipebottom"],
           this.pipes[i].x,
           this.pipes[i].y,
           this.pipes[i].width,
-          images[SpritesEnum.pipetop].height
+          images["pipetop"].height
         );
       }
     }
@@ -154,7 +213,7 @@ class Game {
         );
         this.ctx.rotate(((Math.PI / 2) * this.birds[i].gravity) / 20);
         this.ctx.drawImage(
-          images[SpritesEnum.bird],
+          images["bird"],
           -this.birds[i].width / 2,
           -this.birds[i].height / 2,
           this.birds[i].width,
@@ -170,7 +229,7 @@ class Game {
     this.ctx.fillText("Max Score : " + this.maxScore, 10, 50);
     this.ctx.fillText("Generation : " + this.generation, 10, 75);
     this.ctx.fillText(
-      "Alive : " + this.alives + " / " + Neuvol.options.population,
+      "Alive : " + this.alives + " / " + options.population,
       10,
       100
     );
@@ -180,12 +239,13 @@ class Game {
       self.display();
     });
   };
-  public isItEnd = (): boolean => {
-    return;
-  };
 }
 
 export const start = () => {
+  Neuvol = new Neuroevolution({
+    population: 50,
+    network: [2, [2], 1],
+  });
   const game = new Game();
   game.start();
   game.update();
