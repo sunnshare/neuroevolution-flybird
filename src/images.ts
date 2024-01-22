@@ -2,7 +2,7 @@ import { Sprites } from "./sprites";
 
 export type Images = Map<string, HTMLImageElement>;
 
-type InitialFn = (imgs: HTMLImageElement, key: string) => void;
+type InitialFn = (img: HTMLImageElement, key: string) => void;
 
 type LoadImages = (sources: Sprites, callback: InitialFn) => void;
 
