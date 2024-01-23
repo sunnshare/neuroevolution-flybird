@@ -1,10 +1,10 @@
 import Layer from "./Layer";
-import { options } from "./Options";
+import { activation } from "./Options";
 
 export default class Network {
-  public layers = [];
+  layers = [];
 
-  public perceptronGeneration = (input, hiddens, output) => {
+  perceptronGeneration = (input, hiddens, output) => {
     let index = 0;
     let previousNeurons = 0;
     let layer = new Layer(index);
@@ -25,7 +25,7 @@ export default class Network {
     this.layers.push(layer);
   };
 
-  public getSave = () => {
+  getSave = () => {
     let datas = {
       neurons: [],
       weights: [],
@@ -43,7 +43,7 @@ export default class Network {
     return datas;
   };
 
-  public setSave = (save) => {
+  setSave = (save) => {
     let previousNeurons = 0;
     let index = 0;
     let indexWeights = 0;
@@ -64,7 +64,7 @@ export default class Network {
     }
   };
 
-  public compute = (inputs) => {
+  compute = (inputs) => {
     // Set the value of each Neuron in the input layer.
     for (let i in inputs) {
       if (this.layers[0] && this.layers[0].neurons[i]) {
@@ -85,7 +85,7 @@ export default class Network {
         }
 
         // Compute the activation of the Neuron.
-        this.layers[i].neurons[j].value = options.activation(sum);
+        this.layers[i].neurons[j].value = activation(sum);
       }
       prevLayer = this.layers[i];
     }

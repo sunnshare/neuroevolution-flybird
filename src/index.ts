@@ -1,13 +1,6 @@
-import { images, start } from "./Game";
-import { loadImages } from "./images";
-import { sprites } from "./sprites";
+import Game from "./Game";
 
 window.onload = () => {
-  loadImages(
-    sprites,
-    (img, key) => {
-      images[key] = img;
-    },
-    start
-  );
+  const game = new Game();
+  game.load();
 };

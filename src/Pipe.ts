@@ -1,9 +1,9 @@
 export default class Pipe {
-  public x: number = 0;
-  public y: number = 0;
-  public height: number = 50;
-  public width: number = 40;
-  public speed: number = 3;
+  x: number = 0;
+  y: number = 0;
+  height: number = 50;
+  width: number = 40;
+  speed: number = 3;
 
   constructor({ x, y, height }) {
     this.x = x;

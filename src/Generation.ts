@@ -1,11 +1,12 @@
 import Genome from "./Genome";
-import { options } from "./Options";
+import { options, randomClamped } from "./Options";
 
 export default class Generation {
-  public genomes = [];
+  genomes = [];
 
-  public addGenome = (genome: Genome) => {
-    for (let i = 0; i < this.genomes.length; i++) {
+  addGenome = (genome: Genome) => {
+    let i = 0;
+    for (i = 0; i < this.genomes.length; i++) {
       // Sort in descending order.
       if (options.scoreSort < 0) {
         if (genome.score > this.genomes[i].score) {
@@ -18,12 +19,11 @@ export default class Generation {
         }
       }
     }
-
     // Insert genome into correct position.
-    this.genomes.splice(this.genomes.length - 1, 0, genome);
+    this.genomes.splice(i, 0, genome);
   };
 
-  public breed = (g1, g2, nbChilds) => {
+  breed = (g1, g2, nbChilds) => {
     let datas = [];
     for (let nb = 0; nb < nbChilds; nb++) {
       // Deep clone of genome 1.
@@ -50,9 +50,8 @@ export default class Generation {
     return datas;
   };
 
-  public generateNextGeneration = () => {
+  generateNextGeneration = () => {
     let nexts = [];
-
     for (let i = 0; i < Math.round(options.elitism * options.population); i++) {
       if (nexts.length < options.population) {
         // Push a deep copy of ith Genome's Nethwork.
@@ -67,7 +66,7 @@ export default class Generation {
     ) {
       let n = JSON.parse(JSON.stringify(this.genomes[0].network));
       for (let k in n.weights) {
-        n.weights[k] = options.randomClamped();
+        n.weights[k] = randomClamped();
       }
       if (nexts.length < options.population) {
         nexts.push(n);

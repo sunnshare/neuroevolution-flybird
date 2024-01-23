@@ -1,13 +1,13 @@
-import { options } from "./Options";
+import { randomClamped } from "./Options";
 
 export default class Neuron {
-  public value: number = 0;
-  public weights = [];
+  value: number = 0;
+  weights = [];
 
-  public populate = (nb) => {
+  populate = (nb) => {
     this.weights = [];
     for (let i = 0; i < nb; i++) {
-      this.weights.push(options.randomClamped());
+      this.weights.push(randomClamped());
     }
   };
 }

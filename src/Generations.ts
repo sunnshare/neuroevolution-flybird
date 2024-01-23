@@ -3,10 +3,14 @@ import Network from "./Network";
 import { options } from "./Options";
 
 export default class Generations {
-  public generations = [];
-  public currentGeneration: Generation = new Generation();
+  generations = [];
+  currentGeneration: Generation;
 
-  public firstGeneration = () => {
+  constructor() {
+    this.currentGeneration = new Generation();
+  }
+
+  firstGeneration = () => {
     // FIXME input, hiddens, output unused.
 
     let out = [];
@@ -20,12 +24,11 @@ export default class Generations {
       );
       out.push(nn.getSave());
     }
-
     this.generations.push(new Generation());
     return out;
   };
 
-  public nextGeneration = () => {
+  nextGeneration = () => {
     if (this.generations.length == 0) {
       // Need to create first generation.
       return false;
@@ -37,7 +40,7 @@ export default class Generations {
     return gen;
   };
 
-  public addGenome = (genome) => {
+  addGenome = (genome) => {
     // Can't add to a Generation if there are no Generations.
     if (this.generations.length == 0) return false;
 

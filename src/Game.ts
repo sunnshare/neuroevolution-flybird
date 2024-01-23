@@ -1,9 +1,9 @@
 import Bird from "./Brid";
+import Neuroevolution from "./Neuroevolution";
+import { options } from "./Options";
 import Pipe from "./Pipe";
 import { FPS } from "./speed";
-import { options } from "./Options";
-import Neuroevolution from "./Neuroevolution";
-import { Images } from "./images";
+import { loadImages } from "./sprites";
 
 (function () {
   let timeouts = [];
@@ -34,28 +34,26 @@ export interface Gen {
   getSave: () => number;
 }
 
-export let images: Images = {};
-
+let images = {};
 let Neuvol: Neuroevolution;
+export default class Game {
+  pipes: Pipe[] = [];
+  birds: Array<Bird> = [];
+  score: number = 0;
 
-class Game {
-  protected pipes: Pipe[] = [];
-  protected birds: Array<Bird> = [];
-  protected score: number = 0;
+  canvas: HTMLCanvasElement;
+  ctx: CanvasRenderingContext2D;
+  width: number;
+  height: number;
 
-  protected canvas: HTMLCanvasElement;
-  protected ctx: CanvasRenderingContext2D;
-  protected width: number;
-  protected height: number;
-
-  protected spawnInterval: number = 90;
-  protected interval: number = 0;
-  protected gen: Array<Gen> = [];
-  protected alives: number = 0;
-  protected generation: number = 0;
-  protected backgroundSpeed: number = 0.5;
-  protected backgroundx: number = 0;
-  protected maxScore: number = 0;
+  spawnInterval: number = 90;
+  interval: number = 0;
+  gen: Array<Gen> = [];
+  alives: number = 0;
+  generation: number = 0;
+  backgroundSpeed: number = 0.5;
+  backgroundx: number = 0;
+  maxScore: number = 0;
 
   constructor() {
     this.canvas = document.querySelector("#flappy");
@@ -64,23 +62,38 @@ class Game {
     this.height = this.canvas.height;
   }
 
-  public start = () => {
+  load = () => {
+    loadImages(images, this.init);
+  };
+
+  init = () => {
+    Neuvol = new Neuroevolution({
+      population: 50,
+      network: [2, [2], 1],
+    });
+    this.start();
+    this.update();
+    this.display();
+  };
+
+  start = () => {
     this.interval = 0;
     this.score = 0;
     this.pipes = [];
     this.birds = [];
-
+    //
     this.gen = Neuvol.nextGeneration();
 
     for (let i in this.gen) {
       let b = new Bird();
       this.birds.push(b);
     }
+
     this.generation++;
     this.alives = this.birds.length;
   };
 
-  public update = () => {
+  update = () => {
     this.backgroundx += this.backgroundSpeed;
     let nextHoll = 0;
     if (this.birds.length > 0) {
@@ -105,7 +118,6 @@ class Game {
         if (this.birds[i].isDead(this.height, this.pipes)) {
           this.birds[i].alive = false;
           this.alives--;
-          //console.log(this.alives);
           Neuvol.networkScore(this.gen[i], this.score);
           if (this.isItEnd()) {
             this.start();
@@ -146,19 +158,18 @@ class Game {
     this.score++;
     this.maxScore = this.score > this.maxScore ? this.score : this.maxScore;
 
-    let self = this;
     if (FPS == 0) {
-      setZeroTimeout(function () {
-        self.update();
+      setZeroTimeout(() => {
+        this.update();
       });
     } else {
-      setTimeout(function () {
-        self.update();
+      setTimeout(() => {
+        this.update();
       }, 1000 / FPS);
     }
   };
 
-  public isItEnd = () => {
+  isItEnd = () => {
     for (let i in this.birds) {
       if (this.birds[i].alive) {
         return false;
@@ -167,7 +178,7 @@ class Game {
     return true;
   };
 
-  public display = () => {
+  display = () => {
     this.ctx.clearRect(0, 0, this.width, this.height);
     for (
       let i = 0;
@@ -240,14 +251,3 @@ class Game {
     });
   };
 }
-
-export const start = () => {
-  Neuvol = new Neuroevolution({
-    population: 50,
-    network: [2, [2], 1],
-  });
-  const game = new Game();
-  game.start();
-  game.update();
-  game.display();
-};

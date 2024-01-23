@@ -1,24 +1,21 @@
 import Generations from "./Generations";
 import Genome from "./Genome";
 import Network from "./Network";
-import { options } from "./Options";
+import { options, setOptions } from "./Options";
 
 export default class Neuroevolution {
-  protected population: number;
-  protected network: Array<number | number[]>;
-  protected generations: Generations;
+  generations: Generations;
 
-  constructor({ population, network }) {
-    this.population = population;
-    this.network = network;
+  constructor(data) {
+    setOptions(data);
     this.generations = new Generations();
   }
 
-  public restart = () => {
+  restart = () => {
     this.generations = new Generations();
   };
 
-  public nextGeneration = () => {
+  nextGeneration = () => {
     let networks = [];
 
     if (this.generations.generations.length == 0) {
@@ -62,7 +59,7 @@ export default class Neuroevolution {
     return nns;
   };
 
-  public networkScore = (network, score) => {
+  networkScore = (network, score) => {
     this.generations.addGenome(new Genome(score, network.getSave()));
   };
 }
