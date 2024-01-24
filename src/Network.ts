@@ -3,10 +3,10 @@ import { activation } from "./Options";
 
 export default class Network {
   layers = [];
-
+  // 生成感知器 2,[2],1
   perceptronGeneration = (input, hiddens, output) => {
     let index = 0;
-    let previousNeurons = 0;
+    let previousNeurons = 0; // 前神经元
     let layer = new Layer(index);
     layer.populate(input, previousNeurons);
 
@@ -40,6 +40,7 @@ export default class Network {
         }
       }
     }
+    console.log("getSave", datas);
     return datas;
   };
 
@@ -96,6 +97,7 @@ export default class Network {
     for (let i in lastLayer.neurons) {
       out.push(lastLayer.neurons[i].value);
     }
+    out[0] > 0.5 ? console.log("跳") : console.log(out);
     return out;
   };
 }

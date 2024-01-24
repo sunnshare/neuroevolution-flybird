@@ -63,34 +63,37 @@ export default class Game {
   }
 
   load = () => {
-    loadImages(images, this.init);
+    loadImages(images, this.init); // 所有图片加载完成后调用回调函数
   };
 
   init = () => {
+    // 初始化了Neuroevolution,Options,Generations,Generation
     Neuvol = new Neuroevolution({
       population: 50,
       network: [2, [2], 1],
     });
+    //
     this.start();
     this.update();
     this.display();
   };
 
   start = () => {
+    // 初始化清空数据
     this.interval = 0;
     this.score = 0;
     this.pipes = [];
     this.birds = [];
-    //
+    // 生成神经网络
     this.gen = Neuvol.nextGeneration();
-
+    // 初始化鸟群
     for (let i in this.gen) {
       let b = new Bird();
       this.birds.push(b);
     }
 
-    this.generation++;
-    this.alives = this.birds.length;
+    this.generation++; // 生成次数加一
+    this.alives = this.birds.length; // 初始化存活数
   };
 
   update = () => {

@@ -7,7 +7,7 @@ export default class Generations {
   currentGeneration: Generation;
 
   constructor() {
-    this.currentGeneration = new Generation();
+    this.currentGeneration = new Generation(); // 初始化Generation
   }
 
   firstGeneration = () => {
@@ -25,6 +25,7 @@ export default class Generations {
       out.push(nn.getSave());
     }
     this.generations.push(new Generation());
+    console.log("out", out);
     return out;
   };
 

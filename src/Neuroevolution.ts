@@ -7,8 +7,8 @@ export default class Neuroevolution {
   generations: Generations;
 
   constructor(data) {
-    setOptions(data);
-    this.generations = new Generations();
+    setOptions(data); // 初始化设置option参数
+    this.generations = new Generations(); // 初始化generations
   }
 
   restart = () => {

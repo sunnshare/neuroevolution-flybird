@@ -24,5 +24,5 @@ export const activation = (a) => {
 };
 
 export const randomClamped = () => {
-  return Math.random() * 2 - 1;
+  return Math.random() * 2 - 1; // -1 -- 1
 };
